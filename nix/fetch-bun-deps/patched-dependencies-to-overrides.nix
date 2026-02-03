@@ -47,6 +47,7 @@ in
           pkgs.runCommandLocal "patched-${name}" { nativeBuildInputs = [ pkgs.patch ]; } ''
             mkdir $out
             cp -r ${pkg}/. $out
+            chmod -R u+w $out
 
             echo "Applying patch for ${name}..."
             patch -p1 -d $out < ${patchFile}
