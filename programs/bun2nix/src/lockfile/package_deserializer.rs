@@ -216,9 +216,19 @@ impl PackageDeserializer {
     }
 
     fn drain_after_substring(mut input: String, sub: &str) -> Option<String> {
-        let pos = input.rfind(sub)? + sub.len();
-
-        Some(input.drain(pos..).collect())
+        if sub == "@" {
+            // For "@", we need to find the @ that precedes a protocol
+            // Look for patterns like "@https://", "@http://", "@file:"
+            let protocols = ["@https://", "@http://", "@file:"];
+            let pos = protocols
+                .iter()
+                .find_map(|proto| input.find(proto).map(|p| p + 1))?;
+            Some(input.drain(pos..).collect())
+        } else {
+            // For other substrings like "file:", etc., find normally
+            let pos = input.find(sub)? + sub.len();
+            Some(input.drain(pos..).collect())
+        }
     }
 }
 
